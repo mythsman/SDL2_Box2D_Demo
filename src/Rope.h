@@ -19,10 +19,13 @@ private:
 	b2World *world;
 	SDL_Renderer *render;
 	std::vector<Box*> boxes;
+	b2Vec2 startPos;
+	b2Vec2 endPos;
+	Ball *endBall;
 	double length;
 	double width;
 public:
-	Rope(b2World *w, SDL_Renderer *r, double length, double width = 0.05);
+	Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos, b2Vec2 endPos);
 	void draw();
 };
 
