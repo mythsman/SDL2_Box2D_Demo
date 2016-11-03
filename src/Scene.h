@@ -11,17 +11,12 @@
 #include<Box2D/Box2D.h>
 #include<vector>
 #include"Drawable.h"
-#include<vector>
 class Scene {
-public:
+protected:
 	SDL_Renderer *render;
 	SDL_Window *window;
-	b2World *world;
-	std::vector<Drawable*> *items;
-	SDL_Texture *textureBg;
-
-	Scene(SDL_Window *win, SDL_Renderer *render, b2World *world,std::vector<Drawable*> *items);
-
+public:
+	Scene(SDL_Window *win, SDL_Renderer *render);
 	virtual int execute();
 	virtual ~Scene();
 };
