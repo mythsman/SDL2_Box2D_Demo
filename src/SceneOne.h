@@ -8,10 +8,10 @@
 #ifndef SCENEONE_H_
 #define SCENEONE_H_
 #include"Scene.h"
+#include"Environment.h"
 #include<list>
 class SceneOne: public Scene {
 private:
-	const double PTM_RATIO = 100.0;
 	std::vector<Drawable*> items;
 	std::list<SDL_Point> mouseList;
 	SDL_Texture *textureBg;

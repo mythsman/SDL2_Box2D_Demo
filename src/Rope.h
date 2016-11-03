@@ -14,6 +14,7 @@
 #include<SDL2/SDL.h>
 #include<Box2D/Box2D.h>
 #include<vector>
+#include<list>
 class Rope: public Drawable {
 private:
 	b2World *world;
@@ -25,8 +26,11 @@ private:
 	double length;
 	double width;
 public:
-	Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos, b2Vec2 endPos);
+	Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
+			Ball *endBall);
 	void draw();
+	void cut(std::list<SDL_Point> points);
+	~Rope();
 };
 
 #endif /* ROPE_H_ */

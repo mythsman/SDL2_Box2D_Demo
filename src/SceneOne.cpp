@@ -82,10 +82,12 @@ int SceneOne::execute() {
 
 	b2Vec2 startPos(3.6, 0.5);
 	b2Vec2 endPos(3.6, 1.5);
-	Rope *rope = new Rope(world, render, 1.0, startPos, endPos);
+
+	Ball *ball = new Ball(world, render, 3.6, 1.5, 0.06);
+	Rope *rope = new Rope(world, render, 1.0, startPos, ball);
 	items.push_back(rope);
 
-	Ball *ball = new Ball(world, render, 3.6, 2, 0.06);
+	ball = new Ball(world, render, 3.6, 2, 0.06);
 	ball->body->SetType(b2_staticBody);
 	ball->fixture->SetFilterData(filter);
 	items.push_back(ball);

@@ -12,13 +12,14 @@
 #include<vector>
 
 Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
-		b2Vec2 endPos) {
+		Ball* endBall) {
 	this->world = w;
 	this->render = r;
 	this->length = length;
 	this->width = 0.05;
 	this->startPos = startPos;
-	this->endPos = endPos;
+	this->endBall = endBall;
+	this->endPos = endBall->body->GetPosition();
 	int count = 20;
 
 	Box *startBox = new Box(w, r, startPos.x, startPos.y, 0.02, 0.02);
@@ -47,11 +48,11 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		world->CreateJoint(&jointDef);
 	}
 	if (count & 1) {
-		endBall = new Ball(w, r, startPos.x + length / count, startPos.y, 0.1);
+		endBall->body->SetTransform(right, 0);
 		jointDef.Initialize(boxes[boxes.size() - 1]->body, endBall->body,
 				right);
 	} else {
-		endBall = new Ball(w, r, startPos.x, startPos.y, 0.1);
+		endBall->body->SetTransform(left, 0);
 		jointDef.Initialize(boxes[boxes.size() - 1]->body, endBall->body, left);
 	}
 	world->CreateJoint(&jointDef);
@@ -66,7 +67,7 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 //	ropeJointDef.localAnchorB = zero;
 //	world->CreateJoint(&ropeJointDef);
 
-	//Move to required location
+//Move to required location
 	double deltaX = (endPos.x - startPos.x) / count;
 	double deltaY = (endPos.y - startPos.y) / count;
 	for (unsigned int i = 1; i < boxes.size(); i++) {
@@ -82,4 +83,13 @@ void Rope::draw() {
 		boxes[i]->draw();
 	}
 	endBall->draw();
+}
+void Rope::cut(std::list<SDL_Point> points) {
+
+}
+
+Rope::~Rope() {
+	for (unsigned int i = 0; i < boxes.size(); i++) {
+		delete boxes[i];
+	}
 }
