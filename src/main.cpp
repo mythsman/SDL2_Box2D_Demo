@@ -12,7 +12,7 @@
 #include<SDL2/SDL_image.h>
 #include<SDL2/SDL_mixer.h>
 
-#include"SceneOne.h"
+#include "Scene1.h"
 
 //b2World *world;
 //std::vector<Drawable*> items;
@@ -142,7 +142,7 @@ int main() {
 			case SDL_MOUSEBUTTONDOWN: {
 				int btn = getPos(e.button.x, e.button.y);
 				if (btn == 1) {
-					SceneOne sceneOne(window, render);
+					Scene1 sceneOne(window, render);
 					signal = sceneOne.execute();
 				}
 			}

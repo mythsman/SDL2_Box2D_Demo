@@ -23,13 +23,16 @@ private:
 	b2Vec2 startPos;
 	b2Vec2 endPos;
 	Ball *endBall;
+	int randId;
 	double length;
 	double width;
 public:
 	Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 			Ball *endBall);
 	void draw();
-	void cut(std::list<SDL_Point> points);
+	bool cross(b2Vec2 v11, b2Vec2 v12, b2Vec2 v21, b2Vec2 v22);
+	bool intersect(std::list<SDL_Point> points);
+	void cut();
 	~Rope();
 };
 

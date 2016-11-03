@@ -8,6 +8,7 @@
 #include<SDL2/SDL.h>
 #include<SDL2/SDL2_gfxPrimitives.h>
 #include"Ball.h"
+#include<math.h>
 Ball::Ball(b2World *w, SDL_Renderer *r, double posx, double posy,
 		double radius) {
 	this->world = w;
@@ -32,6 +33,16 @@ void Ball::draw() {
 	filledCircleColor(render, position.x * 100, position.y * 100, radius * 100,
 			0xff0000ff);
 
+}
+
+bool Ball::intersect(Ball *next) {
+	b2Vec2 position1 = body->GetPosition();
+	b2Vec2 position2 = next->body->GetPosition();
+	double dist = hypot(position1.x - position2.x, position1.y - position2.y);
+	if (dist < radius + next->radius) {
+		return true;
+	}
+	return false;
 }
 Ball::~Ball() {
 	SDL_DestroyRenderer(render);

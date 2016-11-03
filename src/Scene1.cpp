@@ -5,14 +5,16 @@
  *      Author: myths
  */
 
-#include"SceneOne.h"
+#include "Scene1.h"
+
 #include"Rope.h"
 #include<SDL2/SDL2_gfxPrimitives.h>
 #include<iostream>
 #include<queue>
-SceneOne::SceneOne(SDL_Window *win, SDL_Renderer *ren) :
+Scene1::Scene1(SDL_Window *win, SDL_Renderer *ren) :
 		Scene(win, ren) {
 	int w, h;
+	status = 0;
 	SDL_GetWindowSize(window, &w, &h);
 	SDL_Surface *surface = SDL_GetWindowSurface(window);
 	SDL_Rect rectBg = { 0, 0, w, h };
@@ -37,19 +39,48 @@ SceneOne::SceneOne(SDL_Window *win, SDL_Renderer *ren) :
 			b2Vec2(w / PTM_RATIO, 0));
 	groundBody->CreateFixture(&groundBox, 0);
 
+	b2Vec2 startPos(3.6, 0.5);
+	b2Vec2 endPos(3.6, 1.5);
+
+	b2Filter filter;
+	filter.categoryBits = 0x0000;
+	star1 = new Ball(world, render, 3.6, 2, 0.06);
+	star1->body->SetType(b2_staticBody);
+	star1->fixture->SetFilterData(filter);
+	items.push_back(star1);
+
+	star2 = new Ball(world, render, 3.6, 3, 0.06);
+	star2->body->SetType(b2_staticBody);
+	star2->fixture->SetFilterData(filter);
+	items.push_back(star2);
+
+	star3 = new Ball(world, render, 3.6, 4, 0.06);
+	star3->body->SetType(b2_staticBody);
+	star3->fixture->SetFilterData(filter);
+	items.push_back(star3);
+
+	ball = new Ball(world, render, 3.6, 1.5, 0.06);
+	items.push_back(ball);
+	rope = new Rope(world, render, 1.0, startPos, ball);
+	items.push_back(rope);
+
+	mouth = new Ball(world, render, 3.6, 5, 0.4);
+	mouth->body->SetType(b2_staticBody);
+	mouth->fixture->SetFilterData(filter);
+	items.push_back(mouth);
 }
 
-SceneOne::~SceneOne() {
+Scene1::~Scene1() {
 	delete world;
 }
-void SceneOne::step() {
+void Scene1::step() {
 	float timeStep = 1.0f / 100.0f;
 	int velocityIterations = 6;
 	int positionIterations = 2;
 	world->Step(timeStep, velocityIterations, positionIterations);
 }
 
-void SceneOne::paint() {
+void Scene1::paint() {
 	SDL_RenderClear(render);
 	SDL_RenderCopy(render, textureBg, NULL, NULL);
 	for (unsigned int i = 0; i < items.size(); i++) {
@@ -64,48 +95,75 @@ void SceneOne::paint() {
 
 }
 unsigned int sceneOneStepCallBack(unsigned int interval, void *param) {
-	SceneOne *sceneOne = (SceneOne*) param;
+	Scene1 *sceneOne = (Scene1*) param;
 	sceneOne->step();
+	if (sceneOne->rope->intersect(sceneOne->mouseList)) {
+		sceneOne->rope->cut();
+		for (unsigned int i = 0; i < sceneOne->items.size(); i++) {
+			if (sceneOne->items[i] == sceneOne->rope) {
+				sceneOne->items.erase(sceneOne->items.begin() + i);
+				break;
+			}
+		}
+	}
+	if (sceneOne->star1 != NULL && sceneOne->ball->intersect(sceneOne->star1)) {
+		sceneOne->world->DestroyBody(sceneOne->star1->body);
+
+		for (unsigned int i = 0; i < sceneOne->items.size(); i++) {
+			if (sceneOne->items[i] == sceneOne->star1) {
+				sceneOne->items.erase(sceneOne->items.begin() + i);
+				break;
+			}
+		}
+		sceneOne->star1 = NULL;
+	}
+	if (sceneOne->star2 != NULL && sceneOne->ball->intersect(sceneOne->star2)) {
+		sceneOne->world->DestroyBody(sceneOne->star2->body);
+
+		for (unsigned int i = 0; i < sceneOne->items.size(); i++) {
+			if (sceneOne->items[i] == sceneOne->star2) {
+				sceneOne->items.erase(sceneOne->items.begin() + i);
+				break;
+			}
+		}
+		sceneOne->star2 = NULL;
+	}
+	if (sceneOne->star3 != NULL && sceneOne->ball->intersect(sceneOne->star3)) {
+		sceneOne->world->DestroyBody(sceneOne->star3->body);
+
+		for (unsigned int i = 0; i < sceneOne->items.size(); i++) {
+			if (sceneOne->items[i] == sceneOne->star3) {
+				sceneOne->items.erase(sceneOne->items.begin() + i);
+				break;
+			}
+		}
+		sceneOne->star3 = NULL;
+	}
+
+	if (sceneOne->ball->intersect(sceneOne->mouth)) {
+		sceneOne->status = 1;
+	}
 	return interval;
 }
 unsigned int sceneOnePaintCallBack(unsigned int interval, void *param) {
-	SceneOne *sceneOne = (SceneOne*) param;
+	Scene1 *sceneOne = (Scene1*) param;
 	sceneOne->paint();
 	return interval;
 }
-int SceneOne::execute() {
-	b2Filter filter;
-	filter.categoryBits = 0x0000;
+
+int Scene1::execute() {
 
 	int t1 = SDL_AddTimer(10, sceneOneStepCallBack, this);
 	int t2 = SDL_AddTimer(20, sceneOnePaintCallBack, this);
-
-	b2Vec2 startPos(3.6, 0.5);
-	b2Vec2 endPos(3.6, 1.5);
-
-	Ball *ball = new Ball(world, render, 3.6, 1.5, 0.06);
-	Rope *rope = new Rope(world, render, 1.0, startPos, ball);
-	items.push_back(rope);
-
-	ball = new Ball(world, render, 3.6, 2, 0.06);
-	ball->body->SetType(b2_staticBody);
-	ball->fixture->SetFilterData(filter);
-	items.push_back(ball);
-
-	ball = new Ball(world, render, 3.6, 3, 0.06);
-	ball->body->SetType(b2_staticBody);
-	ball->fixture->SetFilterData(filter);
-	items.push_back(ball);
-
-	ball = new Ball(world, render, 3.6, 4, 0.06);
-	ball->body->SetType(b2_staticBody);
-	ball->fixture->SetFilterData(filter);
-	items.push_back(ball);
 
 	int signal;
 	bool quit = false;
 	bool mouseDown;
 	while (!quit) {
+		if (status == 1) {
+			quit = true;
+			signal = 1;
+		}
 		SDL_Event e;
 		if (SDL_PollEvent(&e)) {
 			switch (e.type) {

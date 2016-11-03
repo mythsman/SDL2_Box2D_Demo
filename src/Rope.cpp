@@ -5,14 +5,19 @@
  *      Author: myths
  */
 #include"Drawable.h"
+#include"Environment.h"
 #include"Ball.h"
 #include"Rope.h"
+#include<time.h>
+#include<stdlib.h>
 #include<SDL2/SDL.h>
 #include<Box2D/Box2D.h>
 #include<vector>
 
 Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		Ball* endBall) {
+	srand(time(0));
+	this->randId = rand();
 	this->world = w;
 	this->render = r;
 	this->length = length;
@@ -23,6 +28,7 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 	int count = 20;
 
 	Box *startBox = new Box(w, r, startPos.x, startPos.y, 0.02, 0.02);
+	startBox->setId(&randId);
 	startBox->body->SetType(b2_staticBody);
 	b2Filter filter;
 	filter.categoryBits = 0x0000;
@@ -32,6 +38,7 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		Box *box = new Box(w, r, startPos.x + length / count / 2, startPos.y,
 				length / count / 2, width / 2);
 		box->fixture->SetFilterData(filter);
+		box->setId(&randId);
 		boxes.push_back(box);
 	}
 
@@ -44,7 +51,7 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 			jointDef.Initialize(boxes[i - 1]->body, boxes[i]->body, left);
 		else
 			jointDef.Initialize(boxes[i - 1]->body, boxes[i]->body, right);
-
+		jointDef.userData = &randId;
 		world->CreateJoint(&jointDef);
 	}
 	if (count & 1) {
@@ -54,6 +61,7 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 	} else {
 		endBall->body->SetTransform(left, 0);
 		jointDef.Initialize(boxes[boxes.size() - 1]->body, endBall->body, left);
+		jointDef.userData = &randId;
 	}
 	world->CreateJoint(&jointDef);
 
@@ -77,15 +85,61 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 	}
 	endBall->body->SetTransform(endPos, 0);
 }
-
+bool Rope::cross(b2Vec2 v11, b2Vec2 v12, b2Vec2 v21, b2Vec2 v22) {
+	double area1 = (v11.x - v21.x) * (v12.y - v21.y)
+			- (v11.y - v21.y) * (v12.x - v21.x);
+	double area2 = (v11.x - v22.x) * (v12.y - v22.y)
+			- (v11.y - v22.y) * (v12.x - v22.x);
+	if (area1 * area2 >= 0)
+		return false;
+	double area3 = (v21.x - v11.x) * (v22.y - v11.y)
+			- (v21.y - v11.y) * (v22.x - v11.x);
+	double area4 = area3 + area1 - area2;
+	if (area3 * area4 >= 0)
+		return false;
+	return true;
+}
+bool Rope::intersect(std::list<SDL_Point> points) {
+	for (unsigned int i = 0; i < boxes.size() - 1; i++) {
+		b2Vec2 v11 = boxes[i]->body->GetPosition();
+		b2Vec2 v12 = boxes[i + 1]->body->GetPosition();
+		std::list<SDL_Point>::iterator it = points.begin(), itnext =
+				points.begin();
+		itnext++;
+		for (; itnext != points.end(); it++, itnext++) {
+			b2Vec2 v21(it->x / PTM_RATIO, it->y / PTM_RATIO);
+			b2Vec2 v22(itnext->x / PTM_RATIO, itnext->y / PTM_RATIO);
+			if (cross(v11, v12, v21, v22)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 void Rope::draw() {
 	for (unsigned int i = 0; i < boxes.size(); i++) {
 		boxes[i]->draw();
 	}
-	endBall->draw();
 }
-void Rope::cut(std::list<SDL_Point> points) {
+void Rope::cut() {
+	b2Body *currBody = world->GetBodyList();
+	b2Body *nextBody;
+	while (currBody != NULL) {
+		nextBody = currBody->GetNext();
+		if (currBody->GetUserData()!=NULL&&*(int*) (currBody->GetUserData())== randId) {
+			world->DestroyBody(currBody);
+		}
+		currBody = nextBody;
+	}
 
+	b2Joint *currJoint = world->GetJointList();
+	b2Joint *nextJoint;
+	while (currJoint != NULL) {
+		nextJoint = currJoint->GetNext();
+		if (*(int*) (currJoint->GetUserData()) == randId) {
+			world->DestroyJoint(currJoint);
+		}
+	}
 }
 
 Rope::~Rope() {

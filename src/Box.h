@@ -8,7 +8,6 @@
 class Box: public Drawable {
 private:
 	SDL_Texture *texture;
-
 	b2World *world;
 	SDL_Renderer *render;
 	double halfWidth, halfHeight;
@@ -18,6 +17,7 @@ public:
 	Box(b2World *w, SDL_Renderer *r, double posx, double posy, double halfWidth,
 			double halfHeight);
 	void draw();
+	void setId(int *id);
 	~Box();
 };
 

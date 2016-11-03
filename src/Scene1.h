@@ -5,23 +5,31 @@
  *      Author: myths
  */
 
-#ifndef SCENEONE_H_
-#define SCENEONE_H_
+#ifndef SCENE1_H_
+#define SCENE1_H_
 #include"Scene.h"
+#include"Rope.h"
 #include"Environment.h"
 #include<list>
-class SceneOne: public Scene {
-private:
+class Scene1: public Scene {
+
+public:
 	std::vector<Drawable*> items;
 	std::list<SDL_Point> mouseList;
 	SDL_Texture *textureBg;
 	b2World *world;
-public:
-	SceneOne(SDL_Window *win, SDL_Renderer *ren);
+
+	Rope *rope;
+	Ball *ball;
+	Ball *star1, *star2, *star3;
+	Ball *mouth;
+	int status;
+
+	Scene1(SDL_Window *win, SDL_Renderer *ren);
 	int execute();
 	void step();
 	void paint();
-	~SceneOne();
+	~Scene1();
 };
 
-#endif /* SCENEONE_H_ */
+#endif /* SCENE1_H_ */

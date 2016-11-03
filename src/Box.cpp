@@ -36,7 +36,9 @@ Box::Box(b2World *w, SDL_Renderer *r, double posx, double posy,
 	texture = SDL_CreateTextureFromSurface(render, surface);
 	SDL_FreeSurface(surface);
 }
-
+void Box::setId(int *id) {
+	body->SetUserData((void*) id);
+}
 void Box::draw() {
 	b2Vec2 position = body->GetPosition();
 	double angle = body->GetAngle();
