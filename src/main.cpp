@@ -4,74 +4,11 @@
  *  Created on: Oct 26, 2016
  *      Author: myths
  */
-
-#include<iostream>
-#include<vector>
-#include<cmath>
-#include<SDL2/SDL.h>
-#include<SDL2/SDL_image.h>
-#include<SDL2/SDL_mixer.h>
+#include"Environment.h"
 
 #include "Scene1.h"
-
-//b2World *world;
-//std::vector<Drawable*> items;
-
-//void initWorld() {
-//	b2Vec2 gravity(0.0f, 10.0f);
-//	world = new b2World(gravity);
-//	b2PolygonShape groundBox;
-//	double delta = 0.1;
-//	b2BodyDef leftBorderDef;
-//	leftBorderDef.position.Set(-delta, HEIGHT / 200.0);
-//	b2Body* leftBorderBody = world->CreateBody(&leftBorderDef);
-//	groundBox.SetAsBox(delta, HEIGHT / 200.0);
-//	leftBorderBody->CreateFixture(&groundBox, 0.0f);
-//
-//	b2BodyDef rightBorderDef;
-//	rightBorderDef.position.Set(WIDTH / 100.0 + delta, HEIGHT / 200.0);
-//	b2Body* rightBorderBody = world->CreateBody(&rightBorderDef);
-//	groundBox.SetAsBox(delta, HEIGHT / 200.0);
-//	rightBorderBody->CreateFixture(&groundBox, 0.0f);
-//
-//	b2BodyDef upBorderDef;
-//	upBorderDef.position.Set(WIDTH / 200.0, -delta);
-//	b2Body* upBorderBody = world->CreateBody(&upBorderDef);
-//	groundBox.SetAsBox(WIDTH, delta);
-//	upBorderBody->CreateFixture(&groundBox, 0.0f);
-//
-//	b2BodyDef downBorderDef;
-//	downBorderDef.position.Set(WIDTH / 200.0, HEIGHT / 100.0 + delta);
-//	b2Body* downBorderBody = world->CreateBody(&downBorderDef);
-//	groundBox.SetAsBox(WIDTH / 100.0, delta);
-//	downBorderBody->CreateFixture(&groundBox, 0.0f);
-//}
-
-//unsigned int timerStep(unsigned int interval, void *param) {
-//	if (param != NULL) {
-//		Scene *scene = (Scene *) param;
-//		scene->step();
-//	}
-
-//	return interval;
-//}
-//
-//unsigned int timerPaint(unsigned int interval, void *param) {
-//	if (param != NULL) {
-//		Scene *scene = (Scene *) param;
-//		scene->paint();
-//	}
-//	SDL_RenderClear(render);
-//	SDL_RenderCopy(render, textureBg, NULL, NULL);
-//	for (unsigned int i = 0; i < items.size(); i++) {
-//		items[i]->draw();
-//	}
-//	SDL_RenderPresent(render);
-//	return interval;
-//}
-
-#define WIDTH 720
-#define HEIGHT 540
+#include "Scene2.h"
+#include "Scene3.h"
 
 SDL_Window *window;
 SDL_Renderer *render;
@@ -102,7 +39,7 @@ void paint() {
 int main() {
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	window = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED,
+	window = SDL_CreateWindow("Cut the rope demo", SDL_WINDOWPOS_UNDEFINED,
 	SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 	if (window == NULL) {
 		printf("Could not create window: %s\n", SDL_GetError());
@@ -144,6 +81,12 @@ int main() {
 				if (btn == 1) {
 					Scene1 sceneOne(window, render);
 					signal = sceneOne.execute();
+				} else if (btn == 2) {
+					Scene2 sceneTwo(window, render);
+					signal = sceneTwo.execute();
+				} else if (btn == 3) {
+					Scene3 sceneThree(window, render);
+					signal = sceneThree.execute();
 				}
 			}
 			default: {
@@ -152,8 +95,15 @@ int main() {
 
 			}
 		}
-		if (signal == 0)
+		switch (signal) {
+		case -1:
+			break;
+		case 0:
 			quit = true;
+			break;
+		case 1:
+			break;
+		}
 	}
 
 	SDL_DestroyWindow(window);

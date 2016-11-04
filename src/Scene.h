@@ -7,9 +7,7 @@
 
 #ifndef SCENE_H_
 #define SCENE_H_
-#include<SDL2/SDL.h>
-#include<Box2D/Box2D.h>
-#include<vector>
+#include"Environment.h"
 #include"Drawable.h"
 class Scene {
 protected:

@@ -6,8 +6,7 @@
  */
 
 #include"Box.h"
-
-#include<SDL2/SDL.h>
+#include"Environment.h"
 
 Box::Box(b2World *w, SDL_Renderer *r, double posx, double posy,
 		double halfWidth, double halfHeight) {

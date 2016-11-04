@@ -6,9 +6,7 @@
  */
 
 #include"Scene.h"
-#include<SDL2/SDL.h>
-#include<vector>
-#include<Box2D/Box2D.h>
+#include"Environment.h"
 Scene::Scene(SDL_Window *win, SDL_Renderer *ren) {
 	this->window = win;
 	this->render = ren;

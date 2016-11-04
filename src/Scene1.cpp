@@ -8,9 +8,7 @@
 #include "Scene1.h"
 
 #include"Rope.h"
-#include<SDL2/SDL2_gfxPrimitives.h>
-#include<iostream>
-#include<queue>
+#include"Environment.h"
 Scene1::Scene1(SDL_Window *win, SDL_Renderer *ren) :
 		Scene(win, ren) {
 	int w, h;
@@ -156,20 +154,18 @@ int Scene1::execute() {
 	int t1 = SDL_AddTimer(10, sceneOneStepCallBack, this);
 	int t2 = SDL_AddTimer(20, sceneOnePaintCallBack, this);
 
-	int signal;
 	bool quit = false;
 	bool mouseDown;
 	while (!quit) {
 		if (status == 1) {
 			quit = true;
-			signal = 1;
 		}
 		SDL_Event e;
 		if (SDL_PollEvent(&e)) {
 			switch (e.type) {
 			case SDL_QUIT: {
 				quit = true;
-				signal = 0;
+				status = 0;
 				break;
 			}
 			case SDL_MOUSEMOTION: {
@@ -181,7 +177,6 @@ int Scene1::execute() {
 					p.x = e.motion.x;
 					p.y = e.motion.y;
 					mouseList.push_back(p);
-
 				}
 				break;
 			}
@@ -202,6 +197,6 @@ int Scene1::execute() {
 	SDL_RenderClear(render);
 	SDL_RemoveTimer(t1);
 	SDL_RemoveTimer(t2);
-	return signal;
+	return status;
 }
 

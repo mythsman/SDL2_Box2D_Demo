@@ -8,15 +8,9 @@
 #include"Environment.h"
 #include"Ball.h"
 #include"Rope.h"
-#include<time.h>
-#include<stdlib.h>
-#include<SDL2/SDL.h>
-#include<Box2D/Box2D.h>
-#include<vector>
 
 Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		Ball* endBall) {
-	srand(time(0));
 	this->randId = rand();
 	this->world = w;
 	this->render = r;
@@ -38,6 +32,10 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		Box *box = new Box(w, r, startPos.x + length / count / 2, startPos.y,
 				length / count / 2, width / 2);
 		box->fixture->SetFilterData(filter);
+		b2MassData massData;
+		box->body->GetMassData(&massData);
+		massData.mass=0.001;
+		box->body->SetMassData(&massData);
 		box->setId(&randId);
 		boxes.push_back(box);
 	}
@@ -52,8 +50,11 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 		else
 			jointDef.Initialize(boxes[i - 1]->body, boxes[i]->body, right);
 		jointDef.userData = &randId;
+		jointDef.collideConnected = true;
+		jointDef.referenceAngle = -30 * M_PI / 180;
 		world->CreateJoint(&jointDef);
 	}
+	jointDef.userData = &randId;
 	if (count & 1) {
 		endBall->body->SetTransform(right, 0);
 		jointDef.Initialize(boxes[boxes.size() - 1]->body, endBall->body,
@@ -61,19 +62,24 @@ Rope::Rope(b2World *w, SDL_Renderer *r, double length, b2Vec2 startPos,
 	} else {
 		endBall->body->SetTransform(left, 0);
 		jointDef.Initialize(boxes[boxes.size() - 1]->body, endBall->body, left);
-		jointDef.userData = &randId;
+
 	}
+	b2MassData md;
+	endBall->body->GetMassData(&md);
+	md.mass=2;
+	endBall->body->SetMassData(&md);
 	world->CreateJoint(&jointDef);
 
 //	//Add rope joint
-//	b2RopeJointDef ropeJointDef;
-//	ropeJointDef.bodyA = boxes[0]->body;
-//	ropeJointDef.bodyB = endBall->body;
-//	ropeJointDef.maxLength = length;
-//	b2Vec2 zero(0, 0);
-//	ropeJointDef.localAnchorA = zero;
-//	ropeJointDef.localAnchorB = zero;
-//	world->CreateJoint(&ropeJointDef);
+	b2RopeJointDef ropeJointDef;
+	ropeJointDef.bodyA = boxes[0]->body;
+	ropeJointDef.bodyB = endBall->body;
+	ropeJointDef.maxLength = length;
+	b2Vec2 zero(0, 0);
+	ropeJointDef.localAnchorA = zero;
+	ropeJointDef.localAnchorB = zero;
+	ropeJointDef.userData = &randId;
+	world->CreateJoint(&ropeJointDef);
 
 //Move to required location
 	double deltaX = (endPos.x - startPos.x) / count;
@@ -126,19 +132,21 @@ void Rope::cut() {
 	b2Body *nextBody;
 	while (currBody != NULL) {
 		nextBody = currBody->GetNext();
-		if (currBody->GetUserData()!=NULL&&*(int*) (currBody->GetUserData())== randId) {
+		if (currBody->GetUserData() != NULL
+				&& *(int*) (currBody->GetUserData()) == randId) {
 			world->DestroyBody(currBody);
 		}
 		currBody = nextBody;
 	}
 
 	b2Joint *currJoint = world->GetJointList();
-	b2Joint *nextJoint;
+	b2Joint *nextJoint = NULL;
 	while (currJoint != NULL) {
 		nextJoint = currJoint->GetNext();
 		if (*(int*) (currJoint->GetUserData()) == randId) {
 			world->DestroyJoint(currJoint);
 		}
+		currJoint = nextJoint;
 	}
 }
 

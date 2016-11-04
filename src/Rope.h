@@ -11,10 +11,7 @@
 #include"Drawable.h"
 #include"Ball.h"
 #include"Box.h"
-#include<SDL2/SDL.h>
-#include<Box2D/Box2D.h>
-#include<vector>
-#include<list>
+#include"Environment.h"
 class Rope: public Drawable {
 private:
 	b2World *world;

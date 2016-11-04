@@ -8,8 +8,7 @@
 #ifndef BALL_H_
 #define BALL_H_
 
-#include<SDL2/SDL.h>
-#include<Box2D/Box2D.h>
+#include"Environment.h"
 #include"Drawable.h"
 
 class Ball: public Drawable {
